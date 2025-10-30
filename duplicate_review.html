@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>查重结果看板</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <style>
+    body {
+      background-color: #f5f6f8;
+    }
+    .category-card {
+      min-height: 300px;
+    }
+    .document-preview {
+      white-space: pre-wrap;
+      max-height: 240px;
+      overflow: auto;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+    .thumbnail-img {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      border: 1px solid #e9ecef;
+    }
+    .rate-pill {
+      min-width: 4.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <header class="mb-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <h1 class="h3 mb-1">查重结果说明</h1>
+          <p class="text-muted mb-0">
+            支持敏感词、文字、图片分类展示查重结果，可计算重复率并提供详细说明。
+          </p>
+        </div>
+        <button id="reloadBtn" class="btn btn-outline-primary">
+          重新拉取查重数据
+        </button>
+      </div>
+    </header>
+
+    <section class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-transparent fw-semibold">文档对比</div>
+          <div class="card-body">
+            <div class="row g-3 align-items-start">
+              <div class="col-sm-6">
+                <label for="docLeft" class="form-label">文档 A</label>
+                <input type="file" class="form-control" id="docLeft" />
+                <small class="text-muted" id="docLeftMeta"></small>
+              </div>
+              <div class="col-sm-6">
+                <label for="docRight" class="form-label">文档 B</label>
+                <input type="file" class="form-control" id="docRight" />
+                <small class="text-muted" id="docRightMeta"></small>
+              </div>
+              <div class="col-12">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <h6 class="mb-2">文档 A 内容预览</h6>
+                    <div class="document-preview" id="docLeftPreview">尚未选择文件</div>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="mb-2">文档 B 内容预览</h6>
+                    <div class="document-preview" id="docRightPreview">尚未选择文件</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header bg-transparent fw-semibold">查重摘要</div>
+          <div class="card-body">
+            <div class="row g-3" id="summarySection">
+              <div class="col-sm-6">
+                <div class="border rounded p-3 bg-light">
+                  <div class="text-muted small">文档 A</div>
+                  <div class="fw-semibold" id="summaryDocLeft">--</div>
+                  <div class="text-muted" id="summaryDocLeftWords">- 字</div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="border rounded p-3 bg-light">
+                  <div class="text-muted small">文档 B</div>
+                  <div class="fw-semibold" id="summaryDocRight">--</div>
+                  <div class="text-muted" id="summaryDocRightWords">- 字</div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="border rounded p-3 bg-light">
+                  <div class="text-muted small">总体重复率</div>
+                  <div class="fs-4 fw-bold" id="summaryOverall">--</div>
+                  <div class="text-muted small" id="summaryNotes"></div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="border rounded p-3 bg-light">
+                  <div class="text-muted small">生成时间</div>
+                  <div class="fw-semibold" id="summaryTime">--</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="row g-4 mb-4">
+      <div class="col-12">
+        <div class="card category-card">
+          <div class="card-header bg-transparent fw-semibold d-flex justify-content-between align-items-center">
+            文字重复项
+            <span class="badge text-bg-primary" id="textCount">0</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th scope="col">标题</th>
+                    <th scope="col">匹配位置</th>
+                    <th scope="col">重复率</th>
+                    <th scope="col">原文片段</th>
+                    <th scope="col">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="textTableBody">
+                  <tr><td colspan="5" class="text-center text-muted py-4">暂无数据</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card category-card">
+          <div class="card-header bg-transparent fw-semibold d-flex justify-content-between align-items-center">
+            敏感词重复项
+            <span class="badge text-bg-danger" id="sensitiveCount">0</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th scope="col">敏感词</th>
+                    <th scope="col">重复率</th>
+                    <th scope="col">上下文</th>
+                    <th scope="col">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="sensitiveTableBody">
+                  <tr><td colspan="4" class="text-center text-muted py-4">暂无数据</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card category-card">
+          <div class="card-header bg-transparent fw-semibold d-flex justify-content-between align-items-center">
+            图片重复项
+            <span class="badge text-bg-warning" id="imageCount">0</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th scope="col">缩略图</th>
+                    <th scope="col">描述</th>
+                    <th scope="col">匹配位置</th>
+                    <th scope="col">重复率</th>
+                    <th scope="col">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="imageTableBody">
+                  <tr><td colspan="5" class="text-center text-muted py-4">暂无数据</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <div class="card">
+        <div class="card-header bg-transparent fw-semibold d-flex justify-content-between align-items-center">
+          已忽略项目
+          <span class="badge text-bg-secondary" id="ignoredCount">0</span>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">类型</th>
+                  <th scope="col">标题 / 描述</th>
+                  <th scope="col">来源</th>
+                  <th scope="col">重复率</th>
+                  <th scope="col">操作</th>
+                </tr>
+              </thead>
+              <tbody id="ignoredTableBody">
+                <tr><td colspan="5" class="text-center text-muted py-4">暂无忽略项</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal fade" id="explanationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="explanationModalLabel">重复内容说明</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <h6 class="text-muted">说明</h6>
+            <p id="modalExplanation">--</p>
+          </div>
+          <div class="row g-3" id="modalSnippets"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script>
+    const state = {
+      data: {
+        documents: { left: { name: '', wordCount: 0 }, right: { name: '', wordCount: 0 } },
+        summary: { overallRate: null, generatedAt: '', notes: '' },
+        text: [],
+        sensitiveWords: [],
+        images: []
+      },
+      ignored: []
+    };
+
+    const selectors = {
+      textTableBody: document.getElementById('textTableBody'),
+      sensitiveTableBody: document.getElementById('sensitiveTableBody'),
+      imageTableBody: document.getElementById('imageTableBody'),
+      ignoredTableBody: document.getElementById('ignoredTableBody'),
+      textCount: document.getElementById('textCount'),
+      sensitiveCount: document.getElementById('sensitiveCount'),
+      imageCount: document.getElementById('imageCount'),
+      ignoredCount: document.getElementById('ignoredCount'),
+      summaryDocLeft: document.getElementById('summaryDocLeft'),
+      summaryDocLeftWords: document.getElementById('summaryDocLeftWords'),
+      summaryDocRight: document.getElementById('summaryDocRight'),
+      summaryDocRightWords: document.getElementById('summaryDocRightWords'),
+      summaryOverall: document.getElementById('summaryOverall'),
+      summaryNotes: document.getElementById('summaryNotes'),
+      summaryTime: document.getElementById('summaryTime')
+    };
+
+    const modalElements = {
+      modal: new bootstrap.Modal(document.getElementById('explanationModal')),
+      title: document.getElementById('explanationModalLabel'),
+      explanation: document.getElementById('modalExplanation'),
+      snippets: document.getElementById('modalSnippets')
+    };
+
+    async function loadData() {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/data?name=double', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error('Remote data unavailable');
+        }
+        const payload = await response.json();
+        applyData(payload);
+      } catch (error) {
+        console.warn('使用本地示例数据 double.json:', error.message);
+        const fallback = await fetch('double.json');
+        const payload = await fallback.json();
+        applyData(payload);
+      }
+    }
+
+    function applyData(payload) {
+      state.data = {
+        documents: payload.documents || state.data.documents,
+        summary: payload.summary || state.data.summary,
+        text: Array.isArray(payload.text) ? payload.text : [],
+        sensitiveWords: Array.isArray(payload.sensitiveWords) ? payload.sensitiveWords : [],
+        images: Array.isArray(payload.images) ? payload.images : []
+      };
+      state.ignored = [];
+      renderAll();
+    }
+
+    function renderAll() {
+      renderSummary();
+      renderTextTable();
+      renderSensitiveTable();
+      renderImageTable();
+      renderIgnoredTable();
+    }
+
+    function renderSummary() {
+      const { documents, summary } = state.data;
+      selectors.summaryDocLeft.textContent = documents?.left?.name || '--';
+      selectors.summaryDocLeftWords.textContent = documents?.left?.wordCount ? `${documents.left.wordCount} 字` : '- 字';
+      selectors.summaryDocRight.textContent = documents?.right?.name || '--';
+      selectors.summaryDocRightWords.textContent = documents?.right?.wordCount ? `${documents.right.wordCount} 字` : '- 字';
+
+      if (typeof summary?.overallRate === 'number') {
+        selectors.summaryOverall.textContent = `${(summary.overallRate * 100).toFixed(1)}%`;
+      } else {
+        selectors.summaryOverall.textContent = '--';
+      }
+      selectors.summaryNotes.textContent = summary?.notes || '';
+      selectors.summaryTime.textContent = summary?.generatedAt ? new Date(summary.generatedAt).toLocaleString() : '--';
+    }
+
+    function renderTextTable() {
+      const list = state.data.text;
+      selectors.textCount.textContent = list.length;
+      selectors.textTableBody.innerHTML = '';
+      if (!list.length) {
+        selectors.textTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">暂无数据</td></tr>';
+        return;
+      }
+      list.forEach(item => {
+        const rate = calcRate(item.overlap, item.baseLength);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="fw-semibold">${escapeHtml(item.title || '未命名')}</div>
+            <div class="text-muted small">重合字数：${item.overlap ?? '--'} / ${item.baseLength ?? '--'}</div>
+          </td>
+          <td>${escapeHtml(item.matchTarget || '--')}</td>
+          <td><span class="badge bg-primary-subtle text-primary rate-pill">${rate}</span></td>
+          <td>
+            <div class="small text-muted">旧版：</div>
+            <div>${escapeHtml(item.snippet || '--')}</div>
+            <div class="small text-muted mt-2">新版：</div>
+            <div>${escapeHtml(item.matchSnippet || '--')}</div>
+          </td>
+          <td class="text-nowrap">
+            <button class="btn btn-link btn-sm" data-action="explain" data-category="text" data-id="${item.id}">查看说明</button>
+            <button class="btn btn-outline-secondary btn-sm" data-action="ignore" data-category="text" data-id="${item.id}">忽略</button>
+          </td>
+        `;
+        selectors.textTableBody.appendChild(row);
+      });
+    }
+
+    function renderSensitiveTable() {
+      const list = state.data.sensitiveWords;
+      selectors.sensitiveCount.textContent = list.length;
+      selectors.sensitiveTableBody.innerHTML = '';
+      if (!list.length) {
+        selectors.sensitiveTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">暂无数据</td></tr>';
+        return;
+      }
+      list.forEach(item => {
+        const rate = calcRate(item.occurrences, item.totalOccurrences);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><span class="badge text-bg-danger">${escapeHtml(item.word || '--')}</span></td>
+          <td><span class="badge bg-danger-subtle text-danger rate-pill">${rate}</span></td>
+          <td>${escapeHtml(item.context || '--')}</td>
+          <td class="text-nowrap">
+            <button class="btn btn-link btn-sm" data-action="explain" data-category="sensitiveWords" data-id="${item.id}">查看说明</button>
+            <button class="btn btn-outline-secondary btn-sm" data-action="ignore" data-category="sensitiveWords" data-id="${item.id}">忽略</button>
+          </td>
+        `;
+        selectors.sensitiveTableBody.appendChild(row);
+      });
+    }
+
+    function renderImageTable() {
+      const list = state.data.images;
+      selectors.imageCount.textContent = list.length;
+      selectors.imageTableBody.innerHTML = '';
+      if (!list.length) {
+        selectors.imageTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">暂无数据</td></tr>';
+        return;
+      }
+      list.forEach(item => {
+        const rate = typeof item.similarity === 'number' ? `${(item.similarity * 100).toFixed(0)}%` : '--';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            ${item.thumbnail ? `<img src="${item.thumbnail}" alt="缩略图" class="thumbnail-img" />` : '<span class="text-muted">无预览</span>'}
+          </td>
+          <td>${escapeHtml(item.description || '--')}</td>
+          <td>${escapeHtml(item.matchTarget || '--')}</td>
+          <td><span class="badge bg-warning-subtle text-warning rate-pill">${rate}</span></td>
+          <td class="text-nowrap">
+            <button class="btn btn-link btn-sm" data-action="explain" data-category="images" data-id="${item.id}">查看说明</button>
+            <button class="btn btn-outline-secondary btn-sm" data-action="ignore" data-category="images" data-id="${item.id}">忽略</button>
+          </td>
+        `;
+        selectors.imageTableBody.appendChild(row);
+      });
+    }
+
+    function renderIgnoredTable() {
+      selectors.ignoredTableBody.innerHTML = '';
+      selectors.ignoredCount.textContent = state.ignored.length;
+      if (!state.ignored.length) {
+        selectors.ignoredTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">暂无忽略项</td></tr>';
+        return;
+      }
+      state.ignored.forEach(item => {
+        const rate = getItemRate(item);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${translateCategory(item.category)}</td>
+          <td>${escapeHtml(item.title || item.description || item.word || '--')}</td>
+          <td>${escapeHtml(item.matchTarget || item.context || '--')}</td>
+          <td><span class="badge bg-secondary-subtle text-secondary rate-pill">${rate}</span></td>
+          <td class="text-nowrap">
+            <button class="btn btn-outline-primary btn-sm" data-action="restore" data-category="${item.category}" data-id="${item.id}">恢复</button>
+          </td>
+        `;
+        selectors.ignoredTableBody.appendChild(row);
+      });
+    }
+
+    function translateCategory(category) {
+      switch (category) {
+        case 'text':
+          return '文字';
+        case 'sensitiveWords':
+          return '敏感词';
+        case 'images':
+          return '图片';
+        default:
+          return category;
+      }
+    }
+
+    function calcRate(part, total) {
+      if (typeof part !== 'number' || typeof total !== 'number' || total === 0) {
+        return '--';
+      }
+      return `${((part / total) * 100).toFixed(0)}%`;
+    }
+
+    function getItemRate(item) {
+      if (!item) return '--';
+      if (item.category === 'text') {
+        return calcRate(item.overlap, item.baseLength);
+      }
+      if (item.category === 'sensitiveWords') {
+        return calcRate(item.occurrences, item.totalOccurrences);
+      }
+      if (item.category === 'images') {
+        return typeof item.similarity === 'number' ? `${(item.similarity * 100).toFixed(0)}%` : '--';
+      }
+      return '--';
+    }
+
+    function handleAction(event) {
+      const target = event.target.closest('button[data-action]');
+      if (!target) return;
+      const { action, category, id } = target.dataset;
+      if (!category || !id) return;
+      if (action === 'ignore') {
+        moveToIgnored(category, id);
+      } else if (action === 'restore') {
+        restoreFromIgnored(category, id);
+      } else if (action === 'explain') {
+        openExplanation(category, id);
+      }
+    }
+
+    function moveToIgnored(category, id) {
+      const list = state.data[category];
+      if (!Array.isArray(list)) return;
+      const index = list.findIndex(item => item.id === id);
+      if (index === -1) return;
+      const [item] = list.splice(index, 1);
+      state.ignored.push({ ...item, category });
+      renderAll();
+    }
+
+    function restoreFromIgnored(category, id) {
+      const index = state.ignored.findIndex(item => item.id === id && item.category === category);
+      if (index === -1) return;
+      const [item] = state.ignored.splice(index, 1);
+      if (!Array.isArray(state.data[category])) {
+        state.data[category] = [];
+      }
+      const restored = { ...item };
+      delete restored.category;
+      state.data[category].push(restored);
+      renderAll();
+    }
+
+    function openExplanation(category, id) {
+      const sourceList = category === 'ignored' ? state.ignored : state.data[category];
+      if (!Array.isArray(sourceList)) return;
+      const item = sourceList.find(entry => entry.id === id);
+      if (!item) return;
+      modalElements.title.textContent = `${translateCategory(category)} - ${item.title || item.description || item.word || '详情'}`;
+      modalElements.explanation.textContent = item.explanation || '暂无说明';
+      modalElements.snippets.innerHTML = '';
+
+      if (item.snippet || item.matchSnippet) {
+        const oldCol = document.createElement('div');
+        oldCol.className = 'col-md-6';
+        oldCol.innerHTML = `
+          <div class="border rounded p-3 bg-light h-100">
+            <div class="text-muted small mb-2">文档 A</div>
+            <div>${escapeHtml(item.snippet || '--')}</div>
+          </div>`;
+        modalElements.snippets.appendChild(oldCol);
+
+        const newCol = document.createElement('div');
+        newCol.className = 'col-md-6';
+        newCol.innerHTML = `
+          <div class="border rounded p-3 bg-light h-100">
+            <div class="text-muted small mb-2">文档 B</div>
+            <div>${escapeHtml(item.matchSnippet || '--')}</div>
+          </div>`;
+        modalElements.snippets.appendChild(newCol);
+      } else if (item.context) {
+        const contextCol = document.createElement('div');
+        contextCol.className = 'col-12';
+        contextCol.innerHTML = `
+          <div class="border rounded p-3 bg-light">
+            <div class="text-muted small mb-2">上下文</div>
+            <div>${escapeHtml(item.context)}</div>
+          </div>`;
+        modalElements.snippets.appendChild(contextCol);
+      } else if (item.thumbnail) {
+        const imageCol = document.createElement('div');
+        imageCol.className = 'col-12 d-flex justify-content-center';
+        imageCol.innerHTML = `<img src="${item.thumbnail}" alt="重复图片" class="img-fluid rounded" style="max-height: 320px;" />`;
+        modalElements.snippets.appendChild(imageCol);
+      } else {
+        modalElements.snippets.innerHTML = '<div class="text-muted">暂无更多内容</div>';
+      }
+
+      modalElements.modal.show();
+    }
+
+    function escapeHtml(text) {
+      if (typeof text !== 'string') return text;
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function setupFileInputs() {
+      const leftInput = document.getElementById('docLeft');
+      const rightInput = document.getElementById('docRight');
+      leftInput.addEventListener('change', event => handleFileSelection(event, 'left'));
+      rightInput.addEventListener('change', event => handleFileSelection(event, 'right'));
+    }
+
+    function handleFileSelection(event, position) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const metaEl = document.getElementById(position === 'left' ? 'docLeftMeta' : 'docRightMeta');
+      const previewEl = document.getElementById(position === 'left' ? 'docLeftPreview' : 'docRightPreview');
+      metaEl.textContent = `${file.name} · ${(file.size / 1024).toFixed(1)} KB`;
+
+      const isTextFile = file.type.startsWith('text/') || /\.(txt|md|json)$/i.test(file.name);
+      if (!isTextFile) {
+        previewEl.textContent = '当前文件非纯文本，无法直接预览。';
+        updateDocumentSummary(position, file.name);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const content = reader.result || '';
+        previewEl.textContent = content.slice(0, 1000) + (content.length > 1000 ? '\n...（仅展示前 1000 个字符）' : '');
+        updateDocumentSummary(position, file.name, content.length);
+      };
+      reader.onerror = () => {
+        previewEl.textContent = '文件读取失败。';
+      };
+      reader.readAsText(file);
+    }
+
+    function updateDocumentSummary(position, name, length) {
+      if (position === 'left') {
+        state.data.documents.left.name = name;
+        if (length) state.data.documents.left.wordCount = length;
+      } else {
+        state.data.documents.right.name = name;
+        if (length) state.data.documents.right.wordCount = length;
+      }
+      renderSummary();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      setupFileInputs();
+      document.body.addEventListener('click', handleAction);
+      document.getElementById('reloadBtn').addEventListener('click', loadData);
+    });
+  </script>
+</body>
+</html>
