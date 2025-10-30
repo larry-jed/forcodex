@@ -1,0 +1,88 @@
+{
+  "documents": {
+    "left": {
+      "name": "营销方案-旧版.docx",
+      "wordCount": 1480
+    },
+    "right": {
+      "name": "营销方案-新版.docx",
+      "wordCount": 1625
+    }
+  },
+  "summary": {
+    "overallRate": 0.46,
+    "generatedAt": "2024-05-05T10:15:00Z",
+    "notes": "新版保留了旧版的主体结构和部分配图"
+  },
+  "text": [
+    {
+      "id": "text-1",
+      "title": "市场背景概述",
+      "matchTarget": "新版 第1章 市场背景",
+      "overlap": 215,
+      "baseLength": 300,
+      "matchLength": 260,
+      "snippet": "旧版：2024年华南地区消费电子市场保持两位数增长……",
+      "matchSnippet": "新版：2024年华南地区消费电子市场继续保持两位数增长……",
+      "explanation": "新版基本沿用了旧版的市场背景描述，只补充了渠道数据。"
+    },
+    {
+      "id": "text-2",
+      "title": "目标客户画像",
+      "matchTarget": "新版 第2章 客群分析",
+      "overlap": 180,
+      "baseLength": 240,
+      "matchLength": 300,
+      "snippet": "旧版：核心客群集中在25-35岁都市白领……",
+      "matchSnippet": "新版：核心客群集中在25-35岁一线城市职场人群……",
+      "explanation": "新版扩展了客户细分维度，但主体人群描述未调整。"
+    },
+    {
+      "id": "text-3",
+      "title": "宣传节奏",
+      "matchTarget": "新版 第4章 推广排期",
+      "overlap": 120,
+      "baseLength": 180,
+      "matchLength": 210,
+      "snippet": "旧版：上线阶段以短视频预热配合线下体验……",
+      "matchSnippet": "新版：上线阶段以短视频预热并叠加线下快闪活动……",
+      "explanation": "节奏安排与旧版一致，仅补充了线下活动形式。"
+    }
+  ],
+  "sensitiveWords": [
+    {
+      "id": "sens-1",
+      "word": "保密",
+      "context": "旧版与新版均多次出现“保密协议”字样",
+      "occurrences": 3,
+      "totalOccurrences": 3,
+      "explanation": "涉及公司内部保密要求，需确认是否可公开。"
+    },
+    {
+      "id": "sens-2",
+      "word": "折扣",
+      "context": "新版新增的渠道折扣方案延用了旧版的折扣比例",
+      "occurrences": 2,
+      "totalOccurrences": 4,
+      "explanation": "折扣策略与旧版相同，需确认是否属于敏感信息。"
+    }
+  ],
+  "images": [
+    {
+      "id": "img-1",
+      "description": "产品路演主视觉",
+      "matchTarget": "新版 附录图2",
+      "similarity": 0.91,
+      "explanation": "新版沿用了旧版的主视觉海报，仅替换了日期信息。",
+      "thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABGElEQVR4Xu3RAQ0AAAgDIN8/9K3hHBQg7Zq0BgAAAAAAAPj3AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4JsG5QABXG5DxgAAAABJRU5ErkJggg=="
+    },
+    {
+      "id": "img-2",
+      "description": "渠道物料陈列图",
+      "matchTarget": "新版 第5章 线下物料",
+      "similarity": 0.78,
+      "explanation": "新版大幅沿用了旧版的展示物料，仅替换文案。",
+      "thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABGElEQVR4Xu3RAQ0AAAgDIN8/9K3hHBQg7Zq0BgAAAAAAAPj3AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4JsG5QABXG5DxgAAAABJRU5ErkJggg=="
+    }
+  ]
+}
