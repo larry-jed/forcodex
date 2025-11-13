@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:mcpdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY:demo}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+
+logging:
+  level:
+    com.example.mcpserver: DEBUG
+
+server:
+  http2:
+    enabled: true
