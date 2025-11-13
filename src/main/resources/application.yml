@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:6666/gyl}
+    username: ${SPRING_DATASOURCE_USERNAME:gyl}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
+    hikari:
+      maximum-pool-size: 10
+  sql:
+    init:
+      mode: never
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY:demo}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+
+logging:
+  level:
+    com.example.mcpserver: DEBUG
+
+server:
+  http2:
+    enabled: true
