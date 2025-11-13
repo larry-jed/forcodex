@@ -17,10 +17,10 @@ import java.util.stream.Stream;
 class AiSqlServiceTest {
 
     @Test
-    void fallbackProducesCityQuery() {
+    void fallbackProducesContractQuery() {
         AiSqlService service = new AiSqlService(new EmptyObjectProvider());
-        StepVerifier.create(service.generateSql("show all customers by city"))
-                .expectNext("SELECT id, first_name, last_name, email, city FROM customers ORDER BY city")
+        StepVerifier.create(service.generateSql("查询所有合同"))
+                .expectNext("SELECT contract_order_number, contract_name, contract_party_a, contract_party_b, contract_amount_cny, signing_date, province, region FROM ed_cdi_contract ORDER BY signing_date DESC NULLS LAST LIMIT 100")
                 .verifyComplete();
     }
 
